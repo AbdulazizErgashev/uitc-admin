@@ -15,7 +15,6 @@ export default function Login() {
     const res = await dispatch(loginUser({ phone, password }));
     if (res.meta.requestStatus === "fulfilled") {
       navigate("/");
-      // dashboard
     }
   };
 
