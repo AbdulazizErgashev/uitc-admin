@@ -1,15 +1,17 @@
+// src/routes/AppRoutes.jsx
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+
 import Dashboard from "../pages/Dashboard";
 import UserList from "../pages/Users/UserList";
 import Login from "../pages/Auth/Login";
-import { useAuth } from "../context/AuthContext";
 
 export default function AppRoutes() {
-  const { user } = useAuth();
+  const { user } = useSelector((state) => state.auth); // Redux store orqali olamiz
 
   const PrivateRoute = ({ children, role }) => {
-    if (!user) return <Navigate to="/login" />;
-    if (role && user.role !== role) return <Navigate to="/" />;
+    if (!user) return <Navigate to="/login" replace />;
+    if (role && user.role !== role) return <Navigate to="/" replace />;
     return children;
   };
 
@@ -32,6 +34,7 @@ export default function AppRoutes() {
           </PrivateRoute>
         }
       />
+      {/* Keyinchalik: /companies, /courses, /portfolio va boshqalar */}
     </Routes>
   );
 }
