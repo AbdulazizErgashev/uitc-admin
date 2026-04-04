@@ -1,20 +1,45 @@
 import React, { useState } from "react";
-import { usePortfolio, useDeletePortfolioItem } from "../../hooks/usePortfolio";
-import Table from "../../components/Table";
 import { Link } from "react-router-dom";
+import Table from "../../components/Table";
 import Modal from "../../components/Modal";
+import { usePortfolio, useDeletePortfolioItem } from "../../hooks/usePortfolio";
 
 export default function PortfolioList() {
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, item: null });
 
   const { data: portfolio, isLoading, error, isError } = usePortfolio();
-  const deletePortfolioMutation = useDeletePortfolioItem();
+  const deleteMutation = useDeletePortfolioItem();
 
   const columns = [
     { header: "Title", key: "title" },
     { header: "Category", key: "category" },
     { header: "Platform", key: "platform" },
-    { header: "Public", render: (row) => (row.is_public ? "Yes" : "No") },
+    {
+      header: "URL",
+      render: (row) => (
+        <a
+          href={row.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline"
+        >
+          Visit
+        </a>
+      ),
+    },
+    {
+      header: "Media",
+      render: (row) =>
+        row.media_url ? (
+          <img
+            src={row.media_url}
+            alt={row.title}
+            className="w-20 h-20 object-cover rounded"
+          />
+        ) : (
+          "No image"
+        ),
+    },
   ];
 
   const actions = (item) => (
@@ -36,7 +61,7 @@ export default function PortfolioList() {
 
   const handleDelete = () => {
     if (deleteModal.item) {
-      deletePortfolioMutation.mutate(deleteModal.item.id);
+      deleteMutation.mutate(deleteModal.item.id);
       setDeleteModal({ isOpen: false, item: null });
     }
   };
@@ -44,7 +69,7 @@ export default function PortfolioList() {
   if (isLoading) return <div>Loading...</div>;
   if (isError)
     return (
-      <div className="p-6 text-red-500">
+      <div className="text-red-500">
         Error: {error?.message || "Failed to load portfolio"}
       </div>
     );

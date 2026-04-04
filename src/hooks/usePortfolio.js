@@ -13,8 +13,7 @@ export const usePortfolio = () => {
   return useQuery({
     queryKey: ["portfolio"],
     queryFn: getPortfolio,
-    select: (data) =>
-      Array.isArray(data) ? data : data?.data?.portfolios || [],
+    select: (data) => data?.data?.portfolios || [],
   });
 };
 
@@ -24,6 +23,7 @@ export const usePortfolioItem = (id) => {
     queryKey: ["portfolioItem", id],
     queryFn: () => getPortfolioItem(id),
     enabled: !!id,
+    select: (data) => data?.data || null,
   });
 };
 
