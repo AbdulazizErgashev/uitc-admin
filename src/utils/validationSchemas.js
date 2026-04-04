@@ -59,12 +59,12 @@ export const CourseSchema = z.object({
 export const PortfolioSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  category: z.nativeEnum(PortfolioCategory), // Prisma enum bilan moslash
+  category: z.nativeEnum(PortfolioCategory),
   platform: z.string().optional(),
   url: z.string().url("Invalid URL").optional(),
-  media_url: z.string().optional(), // media_url qo‘shildi
-  tags: z.array(z.string()).optional(), // array optional bo‘lishi mumkin
-  is_public: z.boolean().optional(), // default true
+  media_url: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  is_public: z.boolean().optional().default(true),
 });
 
 // Team member schema
