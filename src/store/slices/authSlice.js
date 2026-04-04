@@ -1,29 +1,48 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../../api/axios";
 
-const token = localStorage.getItem("token");
-const user = localStorage.getItem("user");
+const safeParse = (data) => {
+  if (!data || data === "undefined" || data === "null") {
+    return null;
+  }
+
+  try {
+    return JSON.parse(data);
+  } catch (error) {
+    console.error("JSON parse error:", error);
+    return null;
+  }
+};
 
 const initialState = {
-  user: user ? JSON.parse(user) : null,
-  token: token || null,
+  user: safeParse(localStorage.getItem("user")),
+  token: localStorage.getItem("token") || null,
   status: "idle",
   error: null,
 };
 
-// Async thunk: login
+// 🔹 Async thunk: login
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ phone, password }, { rejectWithValue }) => {
     try {
       const res = await axios.post("/auth/login", { phone, password });
-      return res.data;
+
+      // 👉 backenddan kelayotgan data struktura tekshiruvi
+      if (!res.data?.data) {
+        throw new Error("Invalid response structure");
+      }
+
+      return res.data.data;
     } catch (err) {
-      return rejectWithValue(err.response.data);
+      return rejectWithValue(
+        err.response?.data?.message || err.message || "Login failed",
+      );
     }
   },
 );
 
+// 🔹 Slice
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -31,26 +50,36 @@ const authSlice = createSlice({
     logout(state) {
       state.user = null;
       state.token = null;
+
+      // 🔥 Tozalash (muhim)
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
     },
   },
   extraReducers: (builder) => {
     builder
+      // ⏳ Pending
       .addCase(loginUser.pending, (state) => {
         state.status = "loading";
+        state.error = null;
       })
+
+      // ✅ Success
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = "succeeded";
 
-        state.user = action.payload.data.admin;
-        state.token = action.payload.data.token;
+        state.user = action.payload.admin;
+        state.token = action.payload.token;
 
-        localStorage.setItem("token", action.payload.data.token);
-        localStorage.setItem("user", JSON.stringify(action.payload.data.admin));
+        // 💾 Save to localStorage
+        localStorage.setItem("token", action.payload.token);
+        localStorage.setItem("user", JSON.stringify(action.payload.admin));
       })
+
+      // ❌ Error
       .addCase(loginUser.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.payload.message;
+        state.error = action.payload || "Something went wrong";
       });
   },
 });

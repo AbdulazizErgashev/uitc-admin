@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5050/api",
+  baseURL: import.meta.env.VITE_API_URL || "/api",
 });
 
 instance.interceptors.request.use((config) => {
@@ -11,5 +11,18 @@ instance.interceptors.request.use((config) => {
   }
   return config;
 });
+
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Remove token and user on 401
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      // Instead of redirect, let the app handle it
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default instance;
