@@ -13,7 +13,8 @@ export const usePortfolio = () => {
   return useQuery({
     queryKey: ["portfolio"],
     queryFn: getPortfolio,
-    select: (data) => (Array.isArray(data) ? data : data?.data || []),
+    select: (data) =>
+      Array.isArray(data) ? data : data?.data?.portfolios || [],
   });
 };
 
