@@ -1,20 +1,26 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getPortfolio, getPortfolioItem, createPortfolioItem, updatePortfolioItem, deletePortfolioItem } from '../api/portfolio';
-import toast from 'react-hot-toast';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import {
+  getPortfolio,
+  getPortfolioItem,
+  createPortfolioItem,
+  updatePortfolioItem,
+  deletePortfolioItem,
+} from "../api/portfolio";
 
 // Get portfolio list
 export const usePortfolio = () => {
   return useQuery({
-    queryKey: ['portfolio'],
+    queryKey: ["portfolio"],
     queryFn: getPortfolio,
-    select: (data) => Array.isArray(data) ? data : data?.data || [],
+    select: (data) => (Array.isArray(data) ? data : data?.data || []),
   });
 };
 
 // Get single portfolio item
 export const usePortfolioItem = (id) => {
   return useQuery({
-    queryKey: ['portfolioItem', id],
+    queryKey: ["portfolioItem", id],
     queryFn: () => getPortfolioItem(id),
     enabled: !!id,
   });
@@ -26,11 +32,13 @@ export const useCreatePortfolioItem = () => {
   return useMutation({
     mutationFn: createPortfolioItem,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['portfolio'] });
-      toast.success('Portfolio item created successfully');
+      queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+      toast.success("Portfolio item created successfully");
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to create portfolio item');
+      toast.error(
+        error.response?.data?.message || "Failed to create portfolio item",
+      );
     },
   });
 };
@@ -41,12 +49,14 @@ export const useUpdatePortfolioItem = () => {
   return useMutation({
     mutationFn: ({ id, data }) => updatePortfolioItem(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['portfolio'] });
-      queryClient.invalidateQueries({ queryKey: ['portfolioItem'] });
-      toast.success('Portfolio item updated successfully');
+      queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+      queryClient.invalidateQueries({ queryKey: ["portfolioItem"] });
+      toast.success("Portfolio item updated successfully");
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update portfolio item');
+      toast.error(
+        error.response?.data?.message || "Failed to update portfolio item",
+      );
     },
   });
 };
@@ -57,11 +67,13 @@ export const useDeletePortfolioItem = () => {
   return useMutation({
     mutationFn: deletePortfolioItem,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['portfolio'] });
-      toast.success('Portfolio item deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+      toast.success("Portfolio item deleted successfully");
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to delete portfolio item');
+      toast.error(
+        error.response?.data?.message || "Failed to delete portfolio item",
+      );
     },
   });
 };

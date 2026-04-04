@@ -1,5 +1,12 @@
 import { z } from "zod";
-import { PortfolioCategory } from "@prisma/client";
+
+export const PortfolioCategory = {
+  WEB: "web",
+  MOBILE: "mobile",
+  DESKTOP: "app",
+  THREE_D_MODELING: "three_d_modeling",
+  THREE_D_ANIMATION: "three_d_animation",
+};
 
 // Auth schemas
 export const AdminRegisterSchema = z
@@ -59,12 +66,13 @@ export const CourseSchema = z.object({
 export const PortfolioSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  category: z.nativeEnum(PortfolioCategory),
+  category: z.enum(Object.values(PortfolioCategory), {
+    errorMap: () => ({ message: "Invalid category selected" }),
+  }),
   platform: z.string().optional(),
   url: z.string().url("Invalid URL").optional(),
   media_url: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  is_public: z.boolean().optional().default(true),
 });
 
 // Team member schema
