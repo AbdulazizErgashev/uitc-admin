@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PortfolioCategory } from "@prisma/client";
 
 // Auth schemas
 export const AdminRegisterSchema = z
@@ -58,11 +59,12 @@ export const CourseSchema = z.object({
 export const PortfolioSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  category: z.string().optional(),
+  category: z.nativeEnum(PortfolioCategory), // Prisma enum bilan moslash
   platform: z.string().optional(),
   url: z.string().url("Invalid URL").optional(),
-  tags: z.array(z.string()).optional(),
-  is_public: z.boolean().optional(),
+  media_url: z.string().optional(), // media_url qo‘shildi
+  tags: z.array(z.string()).optional(), // array optional bo‘lishi mumkin
+  is_public: z.boolean().optional(), // default true
 });
 
 // Team member schema
