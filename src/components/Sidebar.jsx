@@ -36,13 +36,13 @@ export default function Sidebar() {
       </div>
 
       <div
-        className={`bg-gradient-to-b from-gray-900 to-gray-800 text-white min-h-screen p-6 shadow-xl
+        className={`bg-linear-to-b from-gray-900 to-gray-800 text-white min-h-screen p-6 shadow-xl
                        ${isOpen ? "w-64" : "w-16"} transition-all duration-300 relative`}
       >
         {/* Logo / Title */}
         <h1
           className={`text-2xl font-bold mb-10 text-center
-                        bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent
+                        bg-linear-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent
                         ${isOpen ? "block" : "hidden"}`}
         >
           UITC Admin
@@ -58,13 +58,13 @@ export default function Sidebar() {
                   <Link
                     to={item.path}
                     className={`flex items-center px-4 py-3 rounded-lg transition-all duration-300
-                               ${active ? "bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg" : "hover:bg-gray-700 hover:shadow-md"}`}
+                               ${active ? "bg-linear-to-r from-blue-600 to-purple-600 shadow-lg" : "hover:bg-gray-700 hover:shadow-md"}`}
                   >
                     {/* Active Indicator */}
                     {active && (
                       <span className="absolute left-0 top-0 h-full w-1 bg-blue-400 rounded-tr-lg rounded-br-lg" />
                     )}
-                    <Icon size={20} className="mr-3 flex-shrink-0" />
+                    <Icon size={20} className="mr-3 shrink-0" />
                     <span
                       className={`${isOpen ? "inline" : "hidden"} transition-all duration-200`}
                     >
