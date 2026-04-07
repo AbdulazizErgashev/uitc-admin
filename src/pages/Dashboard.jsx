@@ -49,7 +49,7 @@ export default function Dashboard() {
               <p className="text-4xl font-bold text-gray-800">{stat.value}</p>
             </div>
             <div
-              className={`w-16 h-16 rounded-full flex items-center justify-center bg-gradient-to-r ${stat.color}`}
+              className={`w-16 h-16 rounded-full flex items-center justify-center bg-linear-to-r ${stat.color}`}
             >
               <span className="text-white font-bold text-xl">{stat.value}</span>
             </div>
