@@ -1,27 +1,45 @@
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useParams, useNavigate } from 'react-router-dom';
-import { TeamMemberSchema } from '../../utils/validationSchemas';
-import { useTeamMember, useCreateTeamMember, useUpdateTeamMember } from '../../hooks/useTeam';
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useParams, useNavigate } from "react-router-dom";
+import { TeamMemberSchema } from "../../utils/validationSchemas";
+import {
+  useTeamMember,
+  useCreateTeamMember,
+  useUpdateTeamMember,
+} from "../../hooks/useTeam";
 
 export default function TeamForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = !!id;
-  const [imageFile, setImageFile] = useState(null);
 
-  const { data: member } = useTeamMember(id);
+  const [imageFile, setImageFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+
+  const { data: memberData } = useTeamMember(id);
+  const member = memberData?.data;
+
   const createMutation = useCreateTeamMember();
   const updateMutation = useUpdateTeamMember();
 
-  const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
     resolver: zodResolver(TeamMemberSchema),
   });
 
   useEffect(() => {
     if (isEdit && member) {
-      reset(member);
+      reset({
+        ...member,
+        expertise: member.expertise?.join(", ") || "",
+        achievements: member.achievements?.join(", ") || "",
+      });
+      setPreview(member.image);
     }
   }, [member, isEdit, reset]);
 
@@ -29,77 +47,149 @@ export default function TeamForm() {
     const file = e.target.files[0];
     if (file) {
       setImageFile(file);
+      setPreview(URL.createObjectURL(file));
     }
   };
 
   const onSubmit = (data) => {
-    if (!imageFile) {
-      alert('Image faylini tanlang!');
-      return;
-    }
     const formData = new FormData();
-    Object.keys(data).forEach(key => {
-      if (data[key]) formData.append(key, data[key]);
+
+    if (data.expertise) {
+      data.expertise = data.expertise
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean);
+    }
+    if (data.achievements) {
+      data.achievements = data.achievements
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean);
+    }
+
+    Object.keys(data).forEach((key) => {
+      if (data[key] !== undefined && data[key] !== "") {
+        if (Array.isArray(data[key])) {
+          data[key].forEach((item) => formData.append(`${key}[]`, item));
+        } else {
+          formData.append(key, data[key]);
+        }
+      }
     });
-    formData.append('image', imageFile);
+
+    if (imageFile) formData.append("image", imageFile);
 
     if (isEdit) {
-      updateMutation.mutate({ id, data: formData }, {
-        onSuccess: () => navigate('/team'),
-      });
+      updateMutation.mutate(
+        { id, data: formData },
+        { onSuccess: () => navigate("/team") },
+      );
     } else {
-      createMutation.mutate(formData, {
-        onSuccess: () => navigate('/team'),
-      });
+      createMutation.mutate(formData, { onSuccess: () => navigate("/team") });
     }
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">{isEdit ? 'Edit Team Member' : 'Create Team Member'}</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="max-w-lg">
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Name</label>
-          <input {...register('name')} className="w-full px-3 py-2 border rounded" />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+    <div className="p-6 max-w-2xl mx-auto bg-white shadow-md rounded-lg">
+      <h1 className="text-3xl font-semibold mb-6 text-gray-800">
+        {isEdit ? "Edit Team Member" : "Create Team Member"}
+      </h1>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {/* NAME & ROLE */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-gray-700 mb-1">Name</label>
+            <input
+              {...register("name")}
+              placeholder="Full Name"
+              className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+            )}
+          </div>
+          <div>
+            <label className="block text-gray-700 mb-1">Role</label>
+            <input
+              {...register("role")}
+              placeholder="Position / Role"
+              className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            />
+            {errors.role && (
+              <p className="text-red-500 text-sm mt-1">{errors.role.message}</p>
+            )}
+          </div>
         </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Role</label>
-          <input {...register('role')} className="w-full px-3 py-2 border rounded" />
-          {errors.role && <p className="text-red-500 text-sm">{errors.role.message}</p>}
+
+        {/* BIO */}
+        <div>
+          <label className="block text-gray-700 mb-1">Bio</label>
+          <textarea
+            {...register("bio")}
+            placeholder="Short biography..."
+            rows={4}
+            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
         </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Bio</label>
-          <textarea {...register('bio')} className="w-full px-3 py-2 border rounded" rows="3" />
-          {errors.bio && <p className="text-red-500 text-sm">{errors.bio.message}</p>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Long Bio</label>
-          <textarea {...register('long_bio')} className="w-full px-3 py-2 border rounded" rows="5" />
-          {errors.long_bio && <p className="text-red-500 text-sm">{errors.long_bio.message}</p>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Image</label>
+
+        {/* IMAGE UPLOAD */}
+        <div>
+          <label className="block text-gray-700 mb-1">Profile Image</label>
           <input
             type="file"
-            accept="image/*"
             onChange={handleFileChange}
-            className="w-full px-3 py-2 border rounded"
+            className="block w-full"
           />
-          {imageFile && <p className="text-sm text-gray-600">Selected: {imageFile.name}</p>}
+          {preview && (
+            <img
+              src={preview}
+              alt="preview"
+              className="w-32 h-32 object-cover rounded-full mt-3 border"
+            />
+          )}
         </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Email</label>
-          <input type="email" {...register('email')} className="w-full px-3 py-2 border rounded" />
-          {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+
+        {/* EMAIL */}
+        <div>
+          <label className="block text-gray-700 mb-1">Email</label>
+          <input
+            type="email"
+            {...register("email")}
+            placeholder="Email address"
+            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
         </div>
-        {/* Add more fields as needed */}
+
+        {/* EXPERTISE */}
+        <div>
+          <label className="block text-gray-700 mb-1">Expertise</label>
+          <input
+            {...register("expertise")}
+            placeholder="Node.js, React, Prisma"
+            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+        </div>
+
+        {/* ACHIEVEMENTS */}
+        <div>
+          <label className="block text-gray-700 mb-1">Achievements</label>
+          <input
+            {...register("achievements")}
+            placeholder="Award 1, Award 2"
+            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+        </div>
+
+        {/* SUBMIT BUTTON */}
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           disabled={createMutation.isLoading || updateMutation.isLoading}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-lg font-medium transition"
         >
-          {createMutation.isLoading || updateMutation.isLoading ? 'Saving...' : 'Save'}
+          {createMutation.isLoading || updateMutation.isLoading
+            ? "Saving..."
+            : "Save Member"}
         </button>
       </form>
     </div>

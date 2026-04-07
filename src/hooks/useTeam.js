@@ -1,22 +1,29 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getTeam, getTeamMember, createTeamMember, updateTeamMember, deleteTeamMember } from '../api/team';
-import toast from 'react-hot-toast';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getTeam,
+  getTeamMember,
+  createTeamMember,
+  updateTeamMember,
+  deleteTeamMember,
+} from "../api/team";
+import toast from "react-hot-toast";
 
 // Get team list
 export const useTeam = () => {
   return useQuery({
-    queryKey: ['team'],
+    queryKey: ["team"],
     queryFn: getTeam,
-    select: (data) => Array.isArray(data) ? data : data?.data || [],
+    select: (data) => (Array.isArray(data) ? data : data?.data || []),
   });
 };
 
 // Get single team member
 export const useTeamMember = (id) => {
   return useQuery({
-    queryKey: ['teamMember', id],
+    queryKey: ["teamMember", id],
     queryFn: () => getTeamMember(id),
     enabled: !!id,
+    select: (data) => data, // MUHIM
   });
 };
 
@@ -26,11 +33,13 @@ export const useCreateTeamMember = () => {
   return useMutation({
     mutationFn: createTeamMember,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team'] });
-      toast.success('Team member created successfully');
+      queryClient.invalidateQueries({ queryKey: ["team"] });
+      toast.success("Team member created successfully");
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to create team member');
+      toast.error(
+        error.response?.data?.message || "Failed to create team member",
+      );
     },
   });
 };
@@ -41,12 +50,14 @@ export const useUpdateTeamMember = () => {
   return useMutation({
     mutationFn: ({ id, data }) => updateTeamMember(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team'] });
-      queryClient.invalidateQueries({ queryKey: ['teamMember'] });
-      toast.success('Team member updated successfully');
+      queryClient.invalidateQueries({ queryKey: ["team"] });
+      queryClient.invalidateQueries({ queryKey: ["teamMember"] });
+      toast.success("Team member updated successfully");
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to update team member');
+      toast.error(
+        error.response?.data?.message || "Failed to update team member",
+      );
     },
   });
 };
@@ -57,11 +68,13 @@ export const useDeleteTeamMember = () => {
   return useMutation({
     mutationFn: deleteTeamMember,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['team'] });
-      toast.success('Team member deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ["team"] });
+      toast.success("Team member deleted successfully");
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || 'Failed to delete team member');
+      toast.error(
+        error.response?.data?.message || "Failed to delete team member",
+      );
     },
   });
 };
