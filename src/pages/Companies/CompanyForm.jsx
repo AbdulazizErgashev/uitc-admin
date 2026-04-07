@@ -28,7 +28,6 @@ export default function CompanyForm() {
     resolver: zodResolver(CompanySchema),
   });
 
-  // Fill form if edit mode
   useEffect(() => {
     if (isEdit && company) {
       reset({
@@ -56,7 +55,6 @@ export default function CompanyForm() {
         formData.append(key, data[key]);
       }
     });
-
     if (logoFile) formData.append("logo", logoFile);
 
     if (isEdit) {
@@ -72,80 +70,90 @@ export default function CompanyForm() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">
+    <div className="p-6 max-w-2xl mx-auto bg-white shadow-md rounded-lg">
+      <h1 className="text-3xl font-semibold mb-6 text-gray-800">
         {isEdit ? "Edit Company" : "Create Company"}
       </h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="max-w-md">
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Name */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Name</label>
+        <div>
+          <label className="block text-gray-700 mb-1">Company Name</label>
           <input
             {...register("name")}
-            className="w-full px-3 py-2 border rounded"
+            placeholder="Enter company name"
+            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
           {errors.name && (
-            <p className="text-red-500 text-sm">{errors.name.message}</p>
+            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
           )}
         </div>
 
         {/* Logo */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Logo</label>
+        <div>
+          <label className="block text-gray-700 mb-1">Logo</label>
           <input
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className="w-full px-3 py-2 border rounded"
+            className="w-full"
           />
           {logoFile && (
-            <p className="text-sm text-gray-600">Selected: {logoFile.name}</p>
+            <p className="text-sm text-gray-600 mt-1">
+              Selected: {logoFile.name}
+            </p>
           )}
           {isEdit && company?.logo_url && !logoFile && (
             <img
               src={company.logo_url}
               alt="Current logo"
-              className="w-16 h-16 mt-2 object-cover rounded"
+              className="w-20 h-20 mt-2 object-cover rounded"
             />
           )}
         </div>
 
         {/* Website */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Website</label>
+        <div>
+          <label className="block text-gray-700 mb-1">Website</label>
           <input
             {...register("website")}
-            className="w-full px-3 py-2 border rounded"
+            placeholder="https://example.com"
+            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
           {errors.website && (
-            <p className="text-red-500 text-sm">{errors.website.message}</p>
+            <p className="text-red-500 text-sm mt-1">
+              {errors.website.message}
+            </p>
           )}
         </div>
 
         {/* Description */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Description</label>
+        <div>
+          <label className="block text-gray-700 mb-1">Description</label>
           <textarea
             {...register("description")}
-            className="w-full px-3 py-2 border rounded"
+            placeholder="Short description of the company..."
             rows={4}
+            className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
           {errors.description && (
-            <p className="text-red-500 text-sm">{errors.description.message}</p>
+            <p className="text-red-500 text-sm mt-1">
+              {errors.description.message}
+            </p>
           )}
         </div>
 
         {/* Submit */}
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
           disabled={
             createCompanyMutation.isLoading || updateCompanyMutation.isLoading
           }
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md text-lg font-medium transition"
         >
           {createCompanyMutation.isLoading || updateCompanyMutation.isLoading
             ? "Saving..."
-            : "Save"}
+            : "Save Company"}
         </button>
       </form>
     </div>

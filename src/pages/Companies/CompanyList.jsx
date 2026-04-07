@@ -13,7 +13,6 @@ export default function CompanyList() {
   const { data: companies, isLoading, error, isError } = useCompanies();
   const deleteCompanyMutation = useDeleteCompany();
 
-  // Table columns
   const columns = [
     { header: "Name", key: "name" },
     { header: "Website", key: "website" },
@@ -37,25 +36,23 @@ export default function CompanyList() {
     },
   ];
 
-  // Row actions
   const actions = (company) => (
     <div className="flex space-x-2">
       <Link
         to={`/companies/edit/${company.id}`}
-        className="text-blue-600 hover:text-blue-900"
+        className="text-blue-600 hover:text-blue-900 font-medium"
       >
         Edit
       </Link>
       <button
         onClick={() => setDeleteModal({ isOpen: true, company })}
-        className="text-red-600 hover:text-red-900"
+        className="text-red-600 hover:text-red-900 font-medium"
       >
         Delete
       </button>
     </div>
   );
 
-  // Handle delete
   const handleDelete = () => {
     if (deleteModal.company) {
       deleteCompanyMutation.mutate(deleteModal.company.id);
@@ -63,8 +60,8 @@ export default function CompanyList() {
     }
   };
 
-  // Loading / Error states
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading)
+    return <div className="p-6 text-gray-500">Loading companies...</div>;
   if (isError)
     return (
       <div className="p-6 text-red-500">
@@ -74,17 +71,19 @@ export default function CompanyList() {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Companies</h1>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <h1 className="text-3xl font-semibold text-gray-800">Companies</h1>
         <Link
           to="/companies/create"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition"
         >
-          Create Company
+          + Add Company
         </Link>
       </div>
 
-      <Table columns={columns} data={companies} actions={actions} />
+      <div className="overflow-x-auto">
+        <Table columns={columns} data={companies} actions={actions} />
+      </div>
 
       <Modal
         isOpen={deleteModal.isOpen}
@@ -92,16 +91,16 @@ export default function CompanyList() {
         title="Delete Company"
       >
         <p>Are you sure you want to delete {deleteModal.company?.name}?</p>
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end mt-4 space-x-2">
           <button
             onClick={() => setDeleteModal({ isOpen: false, company: null })}
-            className="mr-2 px-4 py-2 bg-gray-300 rounded"
+            className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition"
           >
             Cancel
           </button>
           <button
             onClick={handleDelete}
-            className="px-4 py-2 bg-red-600 text-white rounded"
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
           >
             Delete
           </button>
