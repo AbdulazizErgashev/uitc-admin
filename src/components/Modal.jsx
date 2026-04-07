@@ -1,11 +1,26 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function Modal({ isOpen, onClose, title, children }) {
+  // Escape tugmasi bilan yopish
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm"
+      onClick={onClose} // fon qismiga bosish bilan yopish
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100"
+        onClick={(e) => e.stopPropagation()} // modal ichidagi clickni to‘xtatadi
+      >
         <div className="flex justify-between items-center p-6 border-b border-gray-100">
           <h2 className="text-xl font-bold text-gray-800">{title}</h2>
           <button
